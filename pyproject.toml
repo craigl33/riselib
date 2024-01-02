@@ -1,5 +1,25 @@
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
 [project]
-# todo
+name = "riselib"
+version = "0.0.1"
+requires-python = ">=3.8"
+authors = [{ name = "Lukas Trippe", email = "lkstrp@pm.me" }]
+readme = "README.md"
+license = {text = "MIT License"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+]
+dynamic = ["dependencies"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+[project.urls]
+Homepage = "https://github.com/rise-iea/riselib"
+
 
 # Ruff configuration
 [tool.ruff]
