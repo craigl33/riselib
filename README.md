@@ -3,11 +3,21 @@
 The riselib package is a collection of modules and functions which can be used in any project. The package is not intended to be run directly, but rather imported into other projects.
 
 ## Installation
-The package can be installed using pip straight from the github repository. 
 
+### conda environment
+The package can be installed using pip straight from the github repository. But the dependencies should be installed manually using conda, to not mix up conda and pip.
+
+Install dependencies:
+```bash
+conda install -c conda-forge pandas pyodbc sqlalchemy
+```
+
+Install riselib:
 ```bash
 pip install git+https://github.com/rise-iea/riselib --no-dependencies
 ```
 
-When conda is used, the dependencies should not be installed automatically (which means via pip) but rather manually using conda. Otherwise, they could be installed twice, which leads to problems. 
-When pip only is used, skip the `--no-dependencies` flag, and all are installed automatically.
+If you install the packages after installing `riselib`, you might have to reinstall it.
+
+### virtualenv (pip only)
+When conda is not used, you can install all the dependencies automatically by just skipping the `--no-dependencies` flag.
