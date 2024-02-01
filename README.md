@@ -14,7 +14,7 @@ conda install -c conda-forge pandas pyodbc sqlalchemy
 
 Install riselib:
 ```bash
-pip install git+https://github.com/rise-iea/riselib --no-dependencies
+pip install git+https://gitlab.iea.org/iea/ems/rise/riselib --no-dependencies
 ```
 
 If you install the packages after installing `riselib`, you might have to reinstall it.
