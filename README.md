@@ -1,6 +1,7 @@
 # riselib
 
 Lalallala this is a random test
+Lulululu this is a even more random text
 
 ## Installation
 There are a few different ways to install the package/ use code from it. It depends on your needs and skills/ comfort.
