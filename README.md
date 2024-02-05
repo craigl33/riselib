@@ -1,7 +1,6 @@
 # riselib
 
-Lalallala this is a random test
-Lulululu this is a even more random text
+The riselib package is a collection of modules and functions which can be used in any project. The package is not intended to be run directly, but rather imported into other projects.
 
 ## Installation
 There are a few different ways to install the package/ use code from it. It depends on your needs and skills/ comfort.
@@ -33,7 +32,7 @@ U:\code\riselib
 
 If you now wanna use riselib inside the plexos-model-setup project, you can install the package in editable mode:
 ```bash
-pip install -e U:\code\riselib
+pip install -e U:\code\riselib --no-dependencies
 ```
 
 This will create a link to the riselib package in the site-packages folder of your python environment. This way, you can change the code in the riselib folder and the changes will be directly available in the plexos-model-setup project. In most IDEs, you can also directly add a second content root to your project, so that you can directly see the code in the IDE. In PyCharm, this can be done via: Settings/ Project Structure/ Add Content Root. This way you can work on both projects at the same time, keeping the git repositories and code separated.
