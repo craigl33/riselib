@@ -1,6 +1,6 @@
 # riselib
 
-The riselib package is a collection of modules and functions which can be used in any project. The package is not intended to be run directly, but rather imported into other projects.
+Lulululu this is a even more random text
 
 ## Installation
 There are a few different ways to install the package/ use code from it. It depends on your needs and skills/ comfort.
