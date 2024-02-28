@@ -11,7 +11,12 @@ import sqlalchemy as sa
 
 
 def export_data(
-    table: str, database: str, columns: list = None, conditions: dict = None, return_query_string: bool = False
+    table: str,
+    database: str,
+    columns: list = None,
+    conditions: dict = None,
+    return_query_string: bool = False,
+    limit: int = None,
 ) -> pd.DataFrame:
     """Get Data from IEA Data Warehouse.
 
@@ -28,6 +33,7 @@ def export_data(
         filtering the data. #todo right now only supports equality and exists in list conditions
     return_query_string (bool, optional): If True, the function will return the SQL query string instead of executing
         the query. Useful for debugging.
+    limit (int, optional): The maximum number of rows to return. If not provided, all rows are returned.
 
     Returns:
     -------
@@ -74,11 +80,16 @@ def export_data(
     else:
         where_clause = ''
 
+    # Add limit clause
+    if limit is not None:
+        select_string = f'TOP {limit} {select_string}'
+
     query_string = f"""
     SELECT {select_string}
     FROM {table}
     {where_clause}
     """
+
     query_string = sa.text(query_string)
     if return_query_string:
         return query_string
