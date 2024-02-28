@@ -1,4 +1,6 @@
-"""This module contains functions for querying the IEA data warehouse. Right now only one quite simple and general
+"""Python wrappers for querying the IEA data warehouse.
+
+This module contains functions for querying the IEA data warehouse. Right now only one quite simple and general
 function and a helper function are included. But this could be expanded in future.
 """
 import collections
@@ -8,12 +10,21 @@ import pyodbc
 import sqlalchemy as sa
 
 
-def export_data(table, database, columns=None, conditions=None, return_query_string=False):
-    """This function exports data from a specified database table from the IEA data warehouse. It allows some additional
+def export_data(
+    table: str,
+    database: str,
+    columns: list = None,
+    conditions: dict = None,
+    return_query_string: bool = False,
+    limit: int = None,
+) -> pd.DataFrame:
+    """Get Data from IEA Data Warehouse.
+
+    This function exports data from a specified database table from the IEA data warehouse. It allows some additional
     functionality and is a simple wrapper for the actual sql query.
 
-    Parameters
-    ----------
+    Args:
+    ----
     table (str): The name of the table from which to export data.
     database (str): The name of the database where the table is located.
     columns (list, optional): A list of column names to be included in the output. If not provided, all columns are
@@ -22,12 +33,14 @@ def export_data(table, database, columns=None, conditions=None, return_query_str
         filtering the data. #todo right now only supports equality and exists in list conditions
     return_query_string (bool, optional): If True, the function will return the SQL query string instead of executing
         the query. Useful for debugging.
+    limit (int, optional): The maximum number of rows to return. If not provided, all rows are returned.
 
-    Returns
+    Returns:
     -------
     df (pd.DataFrame): A DataFrame containing the exported data.
     or
     query_string (str): The SQL query string, if return_query_string is True.
+
     """
     db_cols = columns
 
@@ -67,11 +80,16 @@ def export_data(table, database, columns=None, conditions=None, return_query_str
     else:
         where_clause = ''
 
+    # Add limit clause
+    if limit is not None:
+        select_string = f'TOP {limit} {select_string}'
+
     query_string = f"""
     SELECT {select_string}
     FROM {table}
     {where_clause}
     """
+
     query_string = sa.text(query_string)
     if return_query_string:
         return query_string
@@ -105,23 +123,25 @@ def export_data(table, database, columns=None, conditions=None, return_query_str
     return df
 
 
-def get_table_list(filter_string='V_', database='Division_EDC'):
+def get_table_list(filter_string: str = 'V_', database: str = 'Division_EDC') -> list:
     """This function queries a specified database and returns a list of table names that contain a specified filter string.
 
-    Parameters
-    ----------
+    Args:
+    ----
     filter_string (str, optional): A string to filter the table names. Only table names containing this string will be
         included in the output. If not provided, 'V_' is used as the default filter string.
     database (str, optional): The name of the database to query. If not provided, "Division_EDC" is used as the default
         database.
 
-    Returns
+    Returns:
     -------
     tables (list): A list of table names from the specified database that contain the filter string.
 
     Example:
+    -------
     >>> get_table_list(filter_string='V_', database="Division_EDC")
     ['V_Table1', 'V_Table2', 'V_Table3']
+
     """
     # cursor.description describes the different row fields, incl. table_name
 
