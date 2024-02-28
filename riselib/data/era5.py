@@ -49,10 +49,13 @@ def _get_years_from_time_sel(time_sel: str | slice | None) -> list:
     ----
         time_sel: A string, a slice, or None.
             - If `time_sel` is a string, it represents a specific date or time in string format.
-              The method will convert it to a datetime object and return a list containing the year of that datetime object.
+              The method will convert it to a datetime object and return a list containing the year of that datetime
+              object.
             - If `time_sel` is a slice, it represents a range of dates or times.
-              The method will convert the start and stop values of the slice to datetime objects, and return a list of years between those two dates inclusive.
-            - If `time_sel` is None, the method will return a list of unique years from the year 1972 to the current year.
+              The method will convert the start and stop values of the slice to datetime objects, and return a list of
+              years between those two dates inclusive.
+            - If `time_sel` is None, the method will return a list of unique years from the year 1972 to the current
+            year.
             - If `time_sel` is of any other type, a TypeError will be raised.
 
     Returns:
@@ -62,6 +65,7 @@ def _get_years_from_time_sel(time_sel: str | slice | None) -> list:
     Raises:
     ------
         TypeError: If the `time_sel` parameter is not of type str, slice, or None.
+
     """
     if isinstance(time_sel, str):
         return [pd.to_datetime(time_sel).year]
@@ -98,6 +102,7 @@ def get_era_data(
             (e.g. slice('2010-01', '2010-02')). If None, all available data is loaded.
         whole_number_offset (bool): If True, longitude and latitude are offset by 0.125 to match the grid cell
             borders (e.g. 40.125->40.0, 40.0->39.875).
+
     """
     if isinstance(variables, str):
         variables = [variables]
@@ -138,9 +143,12 @@ def get_era_data(
     # Apply selection
     era_data = era_data.sel(time=time, longitude=longitude, latitude=latitude)
 
-    # Round lat/lon to whole numbers
+    # Offset lat/lon to whole numbers
     if whole_number_offset:
-        era_data = era_data.assign_coords(longitude=era_data.longitude - 0.125, latitude=era_data.latitude - 0.125)
+        era_data = era_data.assign_coords(
+            longitude=era_data.longitude + 0.125,  # Moves east (range is -180 to 180)
+            latitude=era_data.latitude - 0.125,  # Moves north (range is 90 to -90)
+        )
 
     return era_data
 
@@ -156,8 +164,7 @@ if __name__ == '__main__':
     era_data = get_era_data(
         variables=['wind'],
         time=slice('2010-01', '2010-02'),
-        longitude=slice(40, 50),
-        latitude=slice(40, 50),
+        longitude=slice(-100000, 100000),
+        latitude=slice(100, 85),
         whole_number_offset=True,
     )
-    era_data
