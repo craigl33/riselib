@@ -26,7 +26,6 @@ Homepage = "https://github.com/rise-iea/riselib"
 # For more information see https://gitlab.iea.org/iea/ems/rise/knowledge-database/-/wikis/best-practices/Code-Quality
 [tool.ruff]
 line-length = 120
-ignore-init-module-imports = true
 
 [tool.ruff.lint]
 select = [
@@ -51,6 +50,7 @@ select = [
     'NPY',  # numpy-specific-rules
 ]
 ignore = ['D104', 'D211', 'D213', 'D400', 'ANN101', 'ANN204', 'PD901']
+ignore-init-module-imports = true
 
 [tool.ruff.format]
 quote-style = "single"
