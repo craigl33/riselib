@@ -1,22 +1,23 @@
-"""General library for GIS operations."""
+"""
+
+General library for GIS operations.
+
+GIS-SCRIPT contains some of these functions, but these should probably be seperated out from it and put in a more generally available package (such as this)
+
+"""
 
 from shapely.geometry import Polygon
-import glob
 import pandas as pd
 import numpy as np
 import geopandas as gpd
-import time
+
 import rasterio
-import h5py
-from shapely.geometry import Point, Polygon
-import progressbar
-import rasterstats
+
 from rasterio.merge import merge
 from rasterio.plot import show
 import os
-from rasterstats import zonal_stats
-
-import glob
+from pyproj import CRS
+import cartopy.io.shapereader as shpreader
 
 from glob import glob
 import os
@@ -38,7 +39,7 @@ def merge_raster(root_folder, subfolder, file_suffix, file_id, bounds, resolutio
     files = glob(search_path, recursive=True)
     
     tiles = [rasterio.open(file) for file in files]
-    
+
     merged_raster, merged_transform = rasterio.merge.merge(tiles, bounds = bounds, res=resolution)
     
     for tile in tiles:
@@ -191,6 +192,7 @@ def create_ref_geo_grid(adm_df, lat_res, lon_res, bin_name='grid_bin', clip_lats
                                     geometry=geom_poly, crs=adm_df.crs)
     return grid
 
+
 def simplify_geom_collection(geom):
     """Simplifies a geometry collection to a MultiPolygon.
 
@@ -213,3 +215,83 @@ def simplify_geom_collection(geom):
         return shapely.geometry.MultiPolygon(poly_list)
     else:
         return geom
+    
+
+
+## Duplicate function from gis-script. Many of the gis.utils function are probably worth relocating here
+def get_country_gdf(country_identifier: str, 
+                    db_name = 'admin_0_countries',
+                    return_data: bool = False,
+                    crs: CRS = CRS('EPSG:4326')
+                      ) -> gpd.GeoDataFrame:
+    """Get the GeoDataFrame of a country based on its identifier (name, ISO2 or ISO3 code).
+
+    Args:
+    ----
+        country_identifier: Identifier of the country. Can be the name, ISO2 or ISO3 code.
+        db_name: Name of the Natural Earth database. By default, uses the standard admin0, but
+                this can vary for the inclusion of occupied territories, etc. Refer
+                to Natural Earth github for more info (https://github.com/nvkelso/natural-earth-vector/)
+        additional_identifier: The use of POV databases (see db_name above) doesnt seem to work. 
+                As an alternative, this builds in the functionality of having multiple additional
+                country identifiers to add to the GDF. This is a quick fix. 
+        return_data: Whether to return the data of the country. Defaults to False.
+        crs: Coordinate reference system of the GeoDataFrame. Defaults to EPSG:4326.
+
+    Returns:
+    -------
+        gpd.GeoDataFrame: GeoDataFrame of the country.
+
+    """
+    shp_filename = shpreader.natural_earth(resolution='10m', category='cultural', name= db_name)
+    shp = shpreader.Reader(shp_filename)
+
+    # Check if the attributes are upper or lowercased
+    if "admin_0" in db_name:
+        country_record = list(
+        filter(
+            lambda c: c.attributes['NAME_EN'] == country_identifier
+            or c.attributes['ISO_A2'] == country_identifier
+            or c.attributes['ISO_A3'] == country_identifier,
+            shp.records(),
+        )
+    )
+
+    ### This isnt working        
+    elif "admin_1" in db_name:
+        country_record = list(
+        filter(
+            lambda c: c.attributes['admin'] == country_identifier
+            or c.attributes['iso_a2'] == country_identifier
+            or c.attributes['adm0_a3'] == country_identifier,
+            shp.records(),
+        )
+    ) 
+            # This is really just to rename the admo_a3 to ISO_A3 for consistency. not that necessary
+        rename_cols = {'adm0_a3':'ISO_A3'}
+    else:
+        raise ValueError('Country identifier not found in shapefile or attempt was made to get granularity finer than admin_1.')
+
+    if len(country_record) == 0:
+        msg = f'Country identifier {country_identifier} not found.'
+        raise ValueError(msg)
+    elif (len(country_record) > 1)&('admin_0' in db_name):
+        msg = f'Country identifier {country_identifier} is ambiguous for an ADM0 identifier. Found {len(country_record)} matches.'
+        raise ValueError(msg)
+    else:
+        country_record = country_record
+
+    # Create gdf from country_record.geometry multi-polygon.
+    # For return data, the filtering is actually not working
+    if return_data:
+        
+        gdf = gpd.GeoDataFrame(data=[c.attributes for c in country_record], geometry=[c.geometry for c in country_record])
+        gdf = gdf.rename(columns=rename_cols)
+        gdf.columns = gdf.columns.str.upper()
+        gdf = gdf.rename(columns={'GEOMETRY':'geometry',})
+        gdf = gdf.set_crs(crs)
+    else:
+        gdf = gpd.GeoDataFrame(geometry=[c.geometry for c in country_record])
+        gdf = gdf.set_crs(crs)
+
+    return gdf

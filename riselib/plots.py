@@ -11,22 +11,12 @@ from matplotlib.patches import Patch
 from matplotlib.lines import Line2D
 from matplotlib import colors
 
+CM_FROM_IN = 1/2.54
 
-IEA_PALETTE_DICT = {'grey5': '#f2f2f2','grey10':'#e6e6e6','pl':'#b187ef', 'bl':'#49d3ff', 'tl':'#00e0e0', 'gl':'#68f394', 'yl':'#fff45a',
-               'ol':'#ffb743', 'rl':'#ff684d', 'gl':'#68f394', 'yl':'#fff45a','grey40':'#949494','grey50':'#6f6f6f',
-               'p':'#af6ab1', 'b':'#3e7ad3', 't':'#00ada1', 'g':'#1dbe62', 'y':'#fed324',
-               'o':'#f1a800', 'r':'#e34946', 'grey20':'#afafaf', 'grey40':'949494', 'grey50':'#6f6f6f', 'black':'#000000', 'white':'#ffffff', 'iea_b':'#0044ff', 
-               'iea_b50':'#80a2ff'}
 
-IEA_PALETTE_L8 = ['rl', 'ol', 'gl', 'bl', 'pl', 'grey10', 'yl', 'tl'] ### got rid of light yellow as its a poor choice for plots.
-IEA_PALETTE_D8 = ['r', 'o', 'y', 'g', 't', 'b', 'p', 'grey50']
-IEA_PALETTE_16 = IEA_PALETTE_L8 + IEA_PALETTE_D8
-IEA_PALETTE_14 = ['rl', 'ol', 'bl', 'gl', 'pl', 'grey10', 'y', 'tl',  'g', 't', 'b', 'grey50', 'yl', 'r', 'p']
-
-IEA_CMAP_L8 = colors.ListedColormap([ IEA_PALETTE_DICT[c] for c in IEA_PALETTE_L8])
-IEA_CMAP_D8 = colors.ListedColormap([ IEA_PALETTE_DICT[c] for c in IEA_PALETTE_D8])
-IEA_CMAP_16 = colors.ListedColormap([ IEA_PALETTE_DICT[c] for c in IEA_PALETTE_16])
-IEA_CMAP_14 = colors.ListedColormap([ IEA_PALETTE_DICT[c] for c in IEA_PALETTE_14])
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+import seaborn as sns
+import matplotlib.ticker as ticker
 
 
 def apply_iea_style(ax, tick_spacing=20):
@@ -44,23 +34,23 @@ def apply_iea_style(ax, tick_spacing=20):
     ## Add gridlines
     plot_ax = ax.get_figure().get_axes()[0]
     plot_ax.grid(False)
-    plot_ax.grid(b=True, axis='y', color='gray', linestyle='--')
+    # plot_ax.grid(b=False, axis='y')
     plot_ax.grid(clip_on=False)
 
     ## Force y-axis tick spacing to each 20deg
-    ax.yaxis.set_major_locator(ticker.MultipleLocator(tick_spacing))
+#     ax.yaxis.set_major_locator(ticker.MultipleLocator(tick_spacing))
     
-    plot_ax.set_yticklabels(['{}\xb0 N'.format(int(y)) if y > 0 else '{}\xb0 S'.format(int(abs(y))) if y < 0 
-                                 else '{}\xb0'.format(int(y)) for y in plot_ax.get_yticks()])
+#     plot_ax.set_yticklabels(['{}\xb0 N'.format(int(y)) if y > 0 else '{}\xb0 S'.format(int(abs(y))) if y < 0 
+#                                  else '{}\xb0'.format(int(y)) for y in plot_ax.get_yticks()])
 
 
     ## Hide x-axis
     ax.get_xaxis().set_visible(False)
+    ax.get_yaxis().set_visible(False)
 
     ## Plot gridlines etc below the map
     ax.set_axisbelow(True)
-
-
+    
 
 def hex_to_rgb(value):
     '''
