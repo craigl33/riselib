@@ -23,11 +23,12 @@ The riselib package is a collection of utility modules and functions for data an
 
 There are several ways to install and use the package depending on your needs:
 
-### 1. Simple Installation (Functions Only)
+### 1. Simple Installation (functions only)
 
 If you just want to use the package functions, install via pip:
 ```bash
 pip install git+https://gitlab.iea.org/iea/ems/rise/riselib --no-dependencies
+```
 
 ### 2. Install for development
 
