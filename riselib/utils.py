@@ -1,28 +1,9 @@
 """Generel utility functions which could be used anywhere."""
 
 import os
-
 from riselib.utils.logger import Logger
 
 log = Logger(__name__)
-
-
-def get_files(root_folder, file_type, id_text, subfolder=''):
-    msg = (
-        'Stop using this function and use glob.glob instead. '
-        'See https://www.geeksforgeeks.org/how-to-use-glob-function-to-find-files-recursively-in-python/'
-    )
-    raise NotImplementedError(msg)
-    searched_files = []
-    folder = os.path.join(root_folder, subfolder)
-
-    for dirpath, _, files in os.walk(folder):
-        for file in files:
-            if (file.endswith(file_type)) & (id_text in file):
-                searched_files.append(os.path.join(os.path.normpath(dirpath), file))
-
-    return searched_files
-
 
 def catch_errors(func: callable) -> callable:
     """Catch errors decorator.

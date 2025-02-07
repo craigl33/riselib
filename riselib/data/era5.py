@@ -12,7 +12,13 @@ Example usage:
         latitude=slice(40, 50),
         whole_number_offset=True,
     )
+
+
+This library seems to be outdated and may be able to be deleted.
 """
+
+
+
 
 import glob
 from collections.abc import Sequence
