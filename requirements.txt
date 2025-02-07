@@ -18,6 +18,7 @@ rasterio>=1.2.0
 pyproj>=3.0.0
 rtree>=1.0.0  # Spatial indexing
 fiona>=1.8.0  # Required by geopandas
+pyproj
 
 # Testing and development
 pytest>=6.0.0
