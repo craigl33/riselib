@@ -25,7 +25,12 @@ There are several ways to install and use the package depending on your needs:
 
 ### 1. Simple Installation (functions only)
 
-If you just want to use the package functions, install via pip:
+If you just want to use the package functions, install via pip using SSH:
+```bash
+pip install git+ssh://git@gitlab.iea.org/iea/ems/rise/riselib --no-dependencies
+```
+
+Or if using HTTPS:
 ```bash
 pip install git+https://gitlab.iea.org/iea/ems/rise/riselib --no-dependencies
 ```
