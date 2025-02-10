@@ -49,9 +49,10 @@ etc
 ```
 
 If you now want use riselib inside the plexos-model-setup project or any other, you can install the package in editable mode:
+
 ```bash
-pip install -e ..\riselib --no-dependencies
-pip install -r ..\riselib\requirements.txt
+pip install -e ../riselib/ --no-dependencies --config-settings editable_mode=strict  
+pip install -r ../riselib/requirements.txt
 ```
 
 This will create a link to the riselib package in the site-packages folder of your python environment. This way, you can change the code in the riselib folder and the changes will be directly available in the plexos-model-setup project. In most IDEs, you can also directly add a second content root to your project, so that you can directly see the code in the IDE. In PyCharm, this can be done via: Settings/ Project Structure/ Add Content Root. This way you can work on both projects at the same time, keeping the git repositories and code separated.
