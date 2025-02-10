@@ -22,4 +22,4 @@ pyproj
 
 # Testing and development
 pytest>=6.0.0
-black>=
+black
