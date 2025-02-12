@@ -1,6 +1,7 @@
 Cartopy==0.22.0
 geopandas==0.14.3
 matplotlib==3.8.3
+numpy==2.2.2
 pandas==2.2.3
 pyodbc==5.2.0
 pyproj==3.6.1
@@ -9,3 +10,4 @@ seaborn==0.13.2
 Shapely==2.0.7
 SQLAlchemy==2.0.38
 xarray==2024.2.0
+xarray_extras==0.6.0
