@@ -13,7 +13,7 @@ IEA_PALETTE_DICT = {'grey5': '#f2f2f2','grey10':'#e6e6e6','pl':'#b187ef', 'bl':'
                'o':'#f1a800', 'r':'#e34946', 'grey20':'#afafaf', 'grey40':'949494', 'grey50':'#6f6f6f', 'black':'#000000', 'white':'#ffffff', 'iea_b':'#0044ff', 
                'iea_b50':'#80a2ff'}
 
-IEA_PALETTE_L8 = ['rl', 'ol', 'gl', 'bl', 'pl', 'grey10', 'yl', 'tl'] ### got rid of light yellow as its a poor choice for plots.
+IEA_PALETTE_L8 = ['rl', 'ol', 'gl', 'bl', 'pl', 'grey10', 'yl', 'tl'] #gi## got rid of light yellow as its a poor choice for plots.
 IEA_PALETTE_D8 = ['r', 'o', 'y', 'g', 't', 'b', 'p', 'grey50']
 IEA_PALETTE_16 = IEA_PALETTE_L8 + IEA_PALETTE_D8
 IEA_PALETTE_14 = ['rl', 'ol', 'bl', 'gl', 'pl', 'grey10', 'y', 'tl',  'g', 't', 'b', 'grey50', 'yl', 'r', 'p']

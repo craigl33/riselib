@@ -18,6 +18,7 @@ from rasterio.plot import show
 import os
 from pyproj import CRS
 import cartopy.io.shapereader as shpreader
+from pathlib import Path
 
 from glob import glob
 import os
@@ -215,5 +216,128 @@ def simplify_geom_collection(geom):
         return shapely.geometry.MultiPolygon(poly_list)
     else:
         return geom
+
+#### These are duplicated functions from gis-script
+# In the long-term, the general gis-script functions should be moved to a new library 
+# similar to riselib/gis.py that allows this functionality to be shared without having to
+# install a long list of requirements for the gis-script package
+# 
+def get_country_gdf(country_identifier: str, 
+                    db_name = 'admin_0_countries',
+                    return_data: bool = False,
+                    crs: CRS = CRS('EPSG:4326')
+                      ) -> gpd.GeoDataFrame:
+    """Get the GeoDataFrame of a country based on its identifier (name, ISO2 or ISO3 code).
+
+    Args:
+    ----
+        country_identifier: Identifier of the country. Can be the name, ISO2 or ISO3 code.
+        db_name: Name of the Natural Earth database. By default, uses the standard admin0, but
+                this can vary for the inclusion of occupied territories, etc. Refer
+                to Natural Earth github for more info (https://github.com/nvkelso/natural-earth-vector/)
+        additional_identifier: The use of POV databases (see db_name above) doesnt seem to work. 
+                As an alternative, this builds in the functionality of having multiple additional
+                country identifiers to add to the GDF. This is a quick fix. 
+        return_data: Whether to return the data of the country. Defaults to False.
+        crs: Coordinate reference system of the GeoDataFrame. Defaults to EPSG:4326.
+
+    Returns:
+    -------
+        gpd.GeoDataFrame: GeoDataFrame of the country.
+
+    """
+    shp_filename = shpreader.natural_earth(resolution='10m', category='cultural', name= db_name)
+    shp = shpreader.Reader(shp_filename)
+
+    # Check if the attributes are upper or lowercased
+    if "admin_0" in db_name:
+        country_record = list(
+        filter(
+            lambda c: c.attributes['NAME_EN'] == country_identifier
+            or c.attributes['ISO_A2'] == country_identifier
+            or c.attributes['ISO_A3'] == country_identifier,
+            shp.records(),
+        )
+    )
+
+    ### This isnt working        
+    elif "admin_1" in db_name:
+        country_record = list(
+        filter(
+            lambda c: c.attributes['admin'] == country_identifier
+            or c.attributes['iso_a2'] == country_identifier
+            or c.attributes['adm0_a3'] == country_identifier,
+            shp.records(),
+        )
+    ) 
+            # This is really just to rename the admo_a3 to ISO_A3 for consistency. not that necessary
+        rename_cols = {'adm0_a3':'ISO_A3'}
+    else:
+        raise ValueError('Country identifier not found in shapefile or attempt was made to get granularity finer than admin_1.')
+
+    if len(country_record) == 0:
+        msg = f'Country identifier {country_identifier} not found.'
+        raise ValueError(msg)
+    elif (len(country_record) > 1)&('admin_0' in db_name):
+        msg = f'Country identifier {country_identifier} is ambiguous for an ADM0 identifier. Found {len(country_record)} matches.'
+        raise ValueError(msg)
+    else:
+        country_record = country_record
+
+    # Create gdf from country_record.geometry multi-polygon.
+    # For return data, the filtering is actually not working
+    if return_data:
+        
+        gdf = gpd.GeoDataFrame(data=[c.attributes for c in country_record], geometry=[c.geometry for c in country_record])
+        gdf = gdf.rename(columns=rename_cols)
+        gdf.columns = gdf.columns.str.upper()
+        gdf = gdf.rename(columns={'GEOMETRY':'geometry',})
+        gdf = gdf.set_crs(crs)
+    else:
+        gdf = gpd.GeoDataFrame(geometry=[c.geometry for c in country_record])
+        gdf = gdf.set_crs(crs)
+
+    return gdf
+
+
+def get_country_bounds(country_identifier: str, shp_file_additions: str | Path | gpd.GeoDataFrame = None, db_name: str = 'admin_0_countries', rounding: np.float64 = None) -> tuple:
+    """Get the bounding box of a country based on its identifier (name, ISO2 or ISO3 code).
+
+    Next to the identifier a shapefile can also be passed. The shapefile will then extend the bounding box of the
+    selected country to include the shapefile. Can be used for EEZ areas for example.
+
+    Args:
+    ----
+        country_identifier (str): Identifier of the country. Can be the name, ISO2 or ISO3 code.
+        shp_file_additions (str | Path | gpd.GeoDataFrame, optional): Shapefile to extend the bounding box. Defaults
+            to None.
+        db_name: By default, uses the standard admin0, but this can vary for the inclusion of occupied territories, etc. 
+            Refer to Natural Earth github for more info (https://github.com/nvkelso/natural-earth-vector/)
+        rounding: Rounding of the bounding box. Defaults to None.
+
+    Returns:
+    -------
+        tuple: Bounding box of the country in the form (x1, y1, x2, y2) rounded to the nearest 0.25 (as default).
+
+    """
+    gdf = get_country_gdf(country_identifier, db_name=db_name)
+
+    if shp_file_additions is not None:
+        if isinstance(shp_file_additions, (str, Path)):
+            gdf_addition = gpd.read_file(shp_file_additions)
+            gdf_addition = gdf_addition.to_crs(gdf.crs)
+        elif isinstance(shp_file_additions, gpd.GeoDataFrame):
+            gdf_addition = shp_file_additions
+            gdf_addition = gdf_addition.to_crs(gdf.crs)
+
+        gdf = pd.concat([gdf, gdf_addition], ignore_index=True)
     
+    x1, y1, x2, y2 = gdf.geometry.total_bounds
+    if rounding is not None:
+        x1 = np.floor(x1 / rounding) * rounding
+        x2 = np.ceil(x2 / rounding) * rounding
+        y1 = np.floor(y1 / rounding) * rounding
+        y2 = np.ceil(y2 / rounding) * rounding        
+
+    return x1, y1, x2, y2    
 
