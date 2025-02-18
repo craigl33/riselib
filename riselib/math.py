@@ -113,6 +113,9 @@ def clean_timeseries(df, column, methods=['std', 'iqr', 'sudden_changes', 'posit
 
     df_copy = df.copy()
 
+    if column is None:
+        column = df.columns
+
     if 'positive' in methods:
         df = df.where(df[column] > 0)
 
